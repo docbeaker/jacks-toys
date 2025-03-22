@@ -1,0 +1,14 @@
+(ldisco) jack-kearney@sophisticated-abacus-dg:~/src/jacks-toys/ifsandbutsanysalls$ nsys-profile -o profile-check-clamp python3 encode_with_clamp.py --d-model 512 --n-head 8 --n-layer 12 --num-batches 20
+100%|██████████| 20/20 [01:18<00:00,  3.92s/it]
+tensor([-1.0905e-09, -1.1592e-09, -1.2315e-09, -8.8698e-10, -7.9535e-10,
+        -1.1009e-09, -1.4188e-09, -8.6652e-10, -1.3242e-09, -1.0859e-09,
+        -1.1382e-09, -1.0159e-09, -8.3651e-10, -1.2299e-09, -1.3347e-09,
+        -1.2092e-09, -1.2892e-09, -1.3572e-09, -9.9044e-10, -1.2037e-09],
+       device='cuda:0')
+(ldisco) jack-kearney@sophisticated-abacus-dg:~/src/jacks-toys/ifsandbutsanysalls$ nsys-profile -o profile-always-clamp python3 encode_with_clamp.py --d-model 512 --n-head 8 --n-layer 12 --num-batches 20 --always-clamp
+100%|██████████| 20/20 [01:02<00:00,  3.13s/it]
+tensor([-6.9804e-10, -7.4510e-10, -2.6330e-10, -8.3605e-10, -5.4797e-10,
+        -5.7753e-10, -4.7521e-10, -4.5748e-10, -3.3424e-10, -5.9958e-10,
+        -8.0604e-10, -4.7748e-10, -6.4392e-10, -6.0231e-10, -8.0263e-10,
+        -5.0613e-10, -7.3442e-10, -3.6539e-10, -5.6889e-10, -5.4661e-10],
+       device='cuda:0')

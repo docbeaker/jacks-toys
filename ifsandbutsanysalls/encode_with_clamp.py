@@ -30,12 +30,12 @@ class Model(nn.Module):
 		x = x + self.pos_embedding(idxes)
 		torch.cuda.nvtx.range_pop()
 		mask = idxes.unsqueeze(0) >= x_len.unsqueeze(1)
-		for layer in self.layers:
-			torch.cuda.nvtx.range_push("encoder-layer")
+		for i, layer in enumerate(self.layers):
+			torch.cuda.nvtx.range_push(f"encoder-layer-{i}")
 			x = layer(x, src_key_padding_mask=mask)
 			torch.cuda.nvtx.range_pop()
 			if self.always_clamp or (x.abs() > 100).any():
-				torch.cuda.nvtx.range_push("clamp")
+				torch.cuda.nvtx.range_push(f"clamp-{i}")
 				x = torch.clamp(x, -100, 100)
 				torch.cuda.nvtx.range_pop()
 		return x
@@ -55,11 +55,15 @@ def main(batch_size, num_batches, max_len, d_model, n_head, n_layer, always_clam
 	model = model.to(device)
 	model.eval()
 
-	for _ in tqdm(range(num_batches)):
+	means = torch.zeros(num_batches).to(device)
+	for n in tqdm(range(num_batches)):
 		x = torch.rand(batch_size, max_len, d_model, device=device)
 		x_len = torch.randint(1, max_len, (batch_size,), device=device)
 		with torch.no_grad():
-			y = model(x, x_len)
+			with torch.cuda.nvtx.range(f"model-forward-{n}"):
+				y = model(x, x_len)
+		means[n] = y.mean()
+	print(means)
 
 
 if __name__ == "__main__":
